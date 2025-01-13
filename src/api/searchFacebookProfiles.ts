@@ -29,20 +29,26 @@ export async function searchFacebookProfiles(filters: SearchFiltersState): Promi
       };
     }
 
-    const profiles: Profile[] = response.data.items.map((item: any) => ({
-      title: item.title || '',
-      link: item.link || '',
-      snippet: item.snippet || '',
-      fullName: item.title?.split(' |')[0] || '',
-      currentPosition: '',
-      company: '',
-      education: [],
-      location: '',
-      followers: 0,
-      connectionDegree: '',
-      about: item.snippet || '',
-      profileImageUrl: item.pagemap?.cse_image?.[0]?.src || ''
-    }));
+    const profiles: Profile[] = response.data.items.map((item: any) => {
+      const bio = item.snippet || '';
+      // Extract first line of bio as current position if available
+      const firstLine = bio.split('.')[0].trim();
+      
+      return {
+        title: item.title || '',
+        link: item.link || '',
+        snippet: item.snippet || '',
+        fullName: item.title?.split(' |')[0] || '',
+        currentPosition: firstLine || '',
+        company: '',
+        education: [],
+        location: '',
+        followers: 0,
+        connectionDegree: '',
+        about: bio,
+        profileImageUrl: ''
+      };
+    });
 
     const totalResults = Math.min(response.data.searchInformation?.totalResults || 0, 100);
     const totalPages = Math.ceil(totalResults / RESULTS_PER_PAGE);
